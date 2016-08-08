@@ -53,6 +53,11 @@ class AuthPtc(Auth):
         self._session = requests.session()
         self._session.verify = True
 
+    def __setstate__(self, state):
+        Auth.__setstate__(self, state)
+        self._session = requests.session()
+        self._session.verify = True
+
     def user_login(self, username, password):
         self.log.info('PTC User Login for: {}'.format(username))
 

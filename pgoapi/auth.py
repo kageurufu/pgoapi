@@ -29,6 +29,7 @@ import logging
 from pgoapi.utilities import get_time, get_format_time_diff
 
 class Auth:
+    PICKLE_VERSION = 1
 
     def __init__(self):
         self.log = logging.getLogger(__name__)
@@ -54,6 +55,36 @@ class Auth:
         self._ticket_expire = None
         self._ticket_start = None
         self._ticket_end = None
+
+    def __getstate__(self):
+        return (
+            self.PICKLE_VERSION,
+            self._login,
+            self._auth_provider,
+            self._auth_token,
+            self._refresh_token,
+            self._ticket_expire,
+            self._ticket_start,
+            self._ticket_end,
+        )
+
+    def __setstate__(self, state):
+        self.__init__()
+
+        if not isinstance(state[0], int) or state[0] < self.PICKLE_VERSION:
+            return
+
+        (
+            pickle_version,
+            self._login,
+            self._auth_provider,
+            self._auth_token,
+            self._refresh_token,
+            self._ticket_expire,
+            self._ticket_start,
+            self._ticket_end,
+        ) = state
+        
 
     def get_name(self):
         return self._auth_provider

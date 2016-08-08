@@ -44,6 +44,7 @@ logger = logging.getLogger(__name__)
 
 
 class PGoApi:
+    PICKLE_VERSION = 1
 
     def __init__(self, provider=None, oauth2_refresh_token=None, username=None, password=None, position_lat=None, position_lng=None, position_alt=None):
         self.set_logger()
@@ -63,6 +64,33 @@ class PGoApi:
 
     def set_logger(self, logger=None):
         self.log = logger or logging.getLogger(__name__)
+
+    def __getstate__(self):
+        return (
+            self.PICKLE_VERSION,
+            self._auth_provider,
+            self._api_endpoint,
+            self._position_lat,
+            self._position_lng,
+            self._position_alt,
+            self._signature_lib,
+        )
+
+    def __setstate__(self, state):
+        self.__init__()
+
+        if not isinstance(state[0], int) or state[0] < self.PICKLE_VERSION:
+            return
+
+        (
+            pickle_version, 
+            self._auth_provider,
+            self._api_endpoint,
+            self._position_lat,
+            self._position_lng,
+            self._position_alt,
+            self._signature_lib,
+        ) = state
 
     def set_authentication(self, provider=None, oauth2_refresh_token=None, username=None, password=None):
         if provider == 'ptc':
